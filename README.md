@@ -149,27 +149,27 @@ which runs `csc.exe /target:winexe … UbuntuDesktop.cs`. `make-icon.ps1` regene
 - `config.ini` is git-ignored; only `config.example.ini` is committed.
 - `trust-cert.ps1` only ever touches your **current-user** certificate stores and is fully reversible.
 
+## FAQ
+
+**How do I run a full Ubuntu desktop from Windows?**
+Install `xfce4` + `xrdp` inside WSL2 (Step 1), then double-click `UbuntuDesktop.exe`. It opens the Ubuntu desktop fullscreen with no login screen.
+
+**How do I skip the WSL / xrdp login screen?**
+The launcher stores your credential and passes it in the `.rdp` profile, so xrdp logs you in automatically — the login box never appears.
+
+**Why is my WSL desktop not fullscreen / showing scrollbars?**
+The launcher opens the session at your monitor's native resolution with smart-sizing on, so it fills the screen and scales like an image with no scrollbars.
+
+**Is this different from WSLg?**
+Yes. WSLg shows individual Linux app windows; UbuntuDesktop opens the whole desktop environment (panels, dock, file manager) as one fullscreen session.
+
+**Does it work on Windows 10?**
+Yes — Windows 10 and 11 with WSL2.
+
 ## License
 
-MIT.
+MIT — free for personal and commercial use.
 
 ---
 
-## راهنمای فارسی
-
-**UbuntuDesktop** یک فایل exe کوچک و پرتابل برای ویندوز است که با **یک دابل‌کلیک** دسکتاپ کامل اوبونتو (داخل WSL2) را **تمام‌صفحه و بدون صفحه لاگین** باز می‌کند.
-
-### چه می‌کند
-- اگر WSL خاموش باشد روشنش می‌کند و xrdp را بالا می‌آورد
-- **خودکار لاگین می‌کند** — صفحه لاگین زشت xrdp دیگر ظاهر نمی‌شود
-- **تمام‌صفحه** با رزولوشن کامل مانیتور؛ با کوچک/بزرگ کردن پنجره، تصویر مثل عکس اسکیل می‌شود (**بدون اسکرول‌بار**)
-- گزینه **همگام‌سازی پسورد**: پسوردی که وارد می‌کنید مستقیم روی لینوکس هم ست می‌شود
-
-### نصب رابط گرافیکی (یک بار)
-داخل اوبونتو دستورهای بخش **Step 1** بالا را اجرا کنید (نصب `xfce4` و `xrdp`، تغییر پورت به 3390، افزودن به گروه `ssl-cert`، و فعال‌سازی سرویس).
-
-### تنظیم یوزر و پسورد
-پنجره **Settings** برنامه (بار اول خودکار باز می‌شود یا با `UbuntuDesktop.exe /settings`) را پر کنید. **نام کاربری و پسورد همان کاربر لینوکس شماست** — چون xrdp با کاربر واقعی لینوکس احراز هویت می‌کند. اگر پسورد لینوکس را عوض کردید، در Settings به‌روزش کنید، یا تیک **«Also set this as the WSL/Linux password»** را بزنید تا برنامه خودش پسورد را روی لینوکس هم ست کند و همیشه یکسان بماند.
-
-### حذف هشدار «Unknown publisher» (اختیاری)
-ویندوز برای فایل `.rdp` امضانشده یک بار هشدار می‌دهد؛ فقط **Connect** را بزنید. برای حذف کامل، اسکریپت `trust-cert.ps1` را **یک بار** با اجازه خودتان اجرا کنید.
+<sub>Tags: wsl2, wsl, ubuntu, linux-desktop, xrdp, remote-desktop, rdp, xfce, windows, wslg, gui, one-click, auto-login, csharp, portable</sub>
