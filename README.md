@@ -1,8 +1,8 @@
 # UbuntuDesktop — One-Click WSL2 Ubuntu Desktop Launcher for Windows
 
-**Open a full Ubuntu Linux desktop (GUI) from Windows with a single double-click.** UbuntuDesktop is a tiny (~25 KB) portable Windows `.exe` that boots WSL2, starts the xrdp remote-desktop server, **auto-logs in**, and opens your Ubuntu XFCE desktop **fullscreen** — no terminal, no login screen, no configuration on every launch.
+**Open a full Ubuntu Linux desktop (GUI) from Windows with a single double-click.** UbuntuDesktop is a tiny, portable Windows `.exe` that **installs and configures** the Ubuntu desktop inside WSL2 for you, then boots WSL, starts the xrdp server, **auto-logs in**, and opens your Ubuntu XFCE desktop **fullscreen** — no terminal, no login screen, no per-launch setup.
 
-> Keywords: WSL2 GUI, Ubuntu desktop on Windows, WSL xrdp, WSLg alternative, run Linux GUI on Windows 11, XFCE remote desktop, one-click WSL desktop, WSL2 RDP auto-login.
+> Keywords: WSL2 GUI, Ubuntu desktop on Windows, WSL xrdp, WSLg alternative, run Linux GUI on Windows 11, XFCE remote desktop, one-click WSL desktop, WSL2 RDP auto-login, install Linux desktop on Windows without terminal.
 
 ![Ubuntu XFCE desktop opened from Windows](docs/desktop.png)
 
@@ -10,25 +10,27 @@
 
 ## Why this exists
 
-WSL2 runs Linux GUI apps one window at a time (WSLg), but there is no simple, built-in way to open a **full Linux desktop** — panels, dock, file manager, the works — as one clean fullscreen window. The usual xrdp route means editing configs, typing a username and password into an ugly login box every time, and fighting black screens and wrong resolutions.
+WSL2 runs Linux GUI apps one window at a time (WSLg), but there is no simple, built-in way to open a **full Linux desktop** — panels, dock, file manager, the works — as one clean fullscreen window. The usual xrdp route means editing configs in the terminal, typing a username and password into an ugly login box every time, and fighting black screens and wrong resolutions.
 
-UbuntuDesktop turns all of that into **one double-click**.
+UbuntuDesktop turns all of that into **one double-click** — and it even does the Linux-side installation for you.
 
 ## Features
 
-- 🖱️ **True one-click** — double-click the exe, the Ubuntu desktop opens fullscreen
+- 🧰 **Installs the desktop for you** — one button installs XFCE + xrdp inside WSL, sets the port, fixes the `ssl-cert` permission, writes the session, and enables the service. **No terminal commands.**
+- 🖱️ **True one-click launch** — after setup, double-click the exe and the desktop opens fullscreen
 - 🔓 **Auto-login** — the native xrdp login screen never appears
-- 🖥️ **Real fullscreen** at your monitor's native resolution; resize the window and the desktop scales like an image (**no scrollbars**)
-- 🔄 **Self-healing** — starts WSL and xrdp automatically if they are not running, and keeps WSL alive
-- 🔐 **Password sync** — optionally set your WSL/Linux password straight from the app, so the Linux and remote passwords never drift apart
-- 🆕 **New virtual desktop** option — open Ubuntu on its own Windows virtual desktop
+- 🖥️ **Real fullscreen** at your monitor's native resolution; resize the window and the desktop scales like an image (**no scrollbars**). Windowed mode is one checkbox away.
+- 🔎 **Auto-detects** your WSL distributions and Linux username, and shows a live status (installed / not installed / running)
+- 🔄 **Self-healing** — starts WSL and xrdp automatically, with a `systemctl → service → direct` fallback for distros without systemd
+- 🔐 **Password sync** — optionally set your WSL/Linux password straight from the app, so Linux and remote passwords never drift apart
+- 🆕 **Side virtual desktop** option — open Ubuntu on the desktop to the right of yours
 - 🚀 **Launch at Windows startup** option
 - 🔑 **No secrets in the binary** — credentials live in a git-ignored `config.ini`
 - 📦 **Portable & dependency-free** — a single exe built with the C# compiler that ships inside Windows
 
 ## Screenshots
 
-| Settings | Ubuntu desktop |
+| Settings & one-click installer | Ubuntu desktop |
 |---|---|
 | ![Settings window](docs/settings.png) | ![Ubuntu XFCE desktop](docs/desktop.png) |
 
@@ -36,140 +38,96 @@ UbuntuDesktop turns all of that into **one double-click**.
 
 ## Requirements
 
-- Windows 10 or 11 with **WSL2** installed
-- An **Ubuntu** distribution in WSL (`wsl --install -d Ubuntu`)
+- Windows 10 or 11 with **WSL2** installed and an **Ubuntu** distro
+  (`wsl --install -d Ubuntu` in an admin PowerShell, then reboot)
 
-## Step 1 — Install the Ubuntu desktop (GUI) inside WSL
+That's it. The desktop environment itself is installed by the app.
 
-Open Ubuntu (`wsl -d Ubuntu`) and run:
+## Quick start
 
-```bash
-# 1. XFCE desktop + xrdp remote-desktop server
-sudo apt update
-sudo apt install -y xfce4 xfce4-goodies xrdp
+1. **Download** `UbuntuDesktop.exe` (see [Releases](../../releases)) and put it in any folder.
+2. **Run it.** On first launch the Settings window opens:
+   - Pick your **WSL distribution** (auto-detected).
+   - Your **username** is filled in automatically; type your Linux **password**.
+   - Click **"Install / Repair Ubuntu desktop"** — a progress window installs XFCE + xrdp and configures everything. Wait for *"Desktop is ready."*
+   - Click **Save & Connect.**
+3. Your Ubuntu desktop opens **fullscreen, already logged in.** From now on, one double-click is all it takes.
 
-# 2. Move xrdp to port 3390 so it never clashes with Windows' own RDP (3389)
-sudo sed -i 's/port=3389/port=3390/' /etc/xrdp/xrdp.ini
+> First launch shows a one-time Windows *"Unknown publisher → Connect"* prompt for the generated `.rdp` file. Click **Connect**. To remove it permanently, see below.
 
-# 3. Let xrdp read its TLS key (fixes the common black-screen / disconnect)
-sudo usermod -aG ssl-cert xrdp
+## Settings
 
-# 4. Use the XFCE session for this user
-echo startxfce4 > ~/.xsession
+Open any time with `UbuntuDesktop.exe /settings`.
 
-# 5. Enable and start the service
-sudo systemctl enable --now xrdp
-```
-
-### Make it pretty (optional, macOS-style)
-
-```bash
-sudo apt install -y arc-theme papirus-icon-theme plank
-# then in XFCE: Settings > Appearance > Arc-Dark, Icons > Papirus-Dark,
-# and add "plank" to Session and Startup > Application Autostart for a macOS-style dock.
-```
-
-## Step 2 — Set your username & password
-
-You can enter everything in the app's **Settings** window (opens automatically on first run, or run `UbuntuDesktop.exe /settings`):
-
-| Field | Meaning |
+| Option | What it does |
 |---|---|
-| **WSL username** | your Linux username (e.g. `morpheus`) |
-| **WSL password** | your Linux password |
-| **xrdp port** | `3390` (from Step 1) |
-| **Distro name** | `Ubuntu` (or your distro's name from `wsl -l`) |
-
-Checkboxes:
-
-- **Also set this as the WSL/Linux password** — runs `chpasswd` in WSL so your Linux password becomes exactly what you typed. Use this to keep the WSL password and the remote password identical.
-- **Remember password** — stores it in `config.ini` for silent auto-login
-- **Open on a new virtual desktop** — gives Ubuntu its own Windows virtual desktop
-- **Launch at Windows startup** — adds the launcher to your Windows startup
-
-Prefer a file? Edit `config.ini` next to the exe:
-
-```ini
-user=morpheus
-pass=your-linux-password
-port=3390
-distro=Ubuntu
-savepass=true
-newdesktop=false
-```
+| **WSL distribution** | Which distro to launch (dropdown, auto-detected) |
+| **Username / Password** | Your Linux credentials — xrdp signs you in against the real Linux user |
+| **xrdp port** | Default `3390` (avoids clashing with Windows RDP on 3389) |
+| **Install / Repair Ubuntu desktop** | Installs or re-runs the XFCE + xrdp setup inside WSL |
+| **Also set this as the WSL/Linux password** | Pushes the typed password into Linux (`chpasswd`) so both stay in sync |
+| **Remember password** | Caches it for prompt-free auto-login |
+| **Open in a window instead of fullscreen** | Resizable window mode |
+| **Open on the side virtual desktop** | Moves one desktop right (Win+Ctrl+Right) and opens there |
+| **Launch at Windows startup** | Adds the launcher to your Windows startup |
 
 ### Username & password = your Linux credentials
 
-xrdp authenticates against the **real Linux user**, so:
+xrdp authenticates against the **real Linux user**, so the remote password *is* your Linux password. Change it in Ubuntu (`passwd`) and update it here, or tick **"Also set this as the WSL/Linux password"** and the app keeps them in sync for you.
 
-- The **remote (RDP) password is your Linux password** — there is no separate one.
-- If you change your Linux password inside Ubuntu (`passwd`), just update it in Settings (or `config.ini`) and reconnect.
-- Or check **"Also set this as the WSL/Linux password"** in Settings and the app pushes your typed password into Linux for you — the two stay in sync automatically.
+## Removing the one-time "Connect" prompt (optional)
 
-## Step 3 — Run it
-
-Double-click **`UbuntuDesktop.exe`**. Your Ubuntu desktop opens fullscreen, already logged in. Done.
-
----
-
-## Removing the "Unknown publisher" prompt (optional)
-
-Windows shows a one-time **"Unknown publisher"** prompt for any unsigned `.rdp` file — you just click **Connect**. To remove it completely, run the included script **once** (it needs your explicit consent because it adjusts your personal certificate trust):
+Windows shows a one-time *"Unknown publisher"* prompt for any unsigned `.rdp` file. To remove it completely — and make **startup fully hands-free** — run the included script once (it needs your consent because it adjusts your personal certificate trust):
 
 ```powershell
-# right-click > Run with PowerShell, or:
 powershell -ExecutionPolicy Bypass -File trust-cert.ps1
 ```
 
-It creates a self-signed code-signing certificate in **your own** (current-user) Trusted Publishers store. The launcher then signs its `.rdp` file so mstsc trusts it and connects silently. To undo it: `powershell -File trust-cert.ps1 -Remove`.
-
-If you skip this, everything still works — you just click **Connect** once per launch.
+It creates a self-signed code-signing certificate in **your own** (current-user) Trusted Publishers store; the launcher then signs its `.rdp` so mstsc connects silently. Undo with `trust-cert.ps1 -Remove`.
 
 ## How it works
 
-1. If WSL is down, spawns a hidden `wsl.exe` holder so the VM boots and stays up
-2. Runs `systemctl start xrdp` inside the distro
-3. Waits for the xrdp port to answer (resolves `localhost` to both IPv4 and IPv6, since the WSL localhost proxy often binds `::1` only)
-4. Stores the credential with `cmdkey` and writes a temporary `.rdp` profile (fullscreen, native resolution, smart-sizing, clipboard)
-5. Optionally signs the `.rdp` (if you installed the cert) and launches `mstsc`
+1. Detects WSL and your distros (`wsl -l -q`, `WSL_UTF8=1`)
+2. If the desktop isn't installed, runs the XFCE + xrdp setup inside WSL with a live log
+3. If WSL is down, spawns a hidden holder so the VM boots and stays up
+4. Starts xrdp (`systemctl` → `service` → direct daemon fallback)
+5. Waits for the xrdp port (resolves `localhost` to IPv4 **and** IPv6 — the WSL proxy often binds `::1` only)
+6. Caches the credential with `cmdkey`, writes a temporary `.rdp` (fullscreen, native res, smart-sizing, clipboard), optionally signs it, and launches `mstsc`
 
 ## Build from source
 
-No SDK required — the .NET Framework compiler is already on every Windows machine:
+No SDK required — the .NET Framework compiler ships with every Windows install:
 
 ```cmd
 build.cmd
 ```
 
-which runs `csc.exe /target:winexe … UbuntuDesktop.cs`. `make-icon.ps1` regenerates the app icon.
-
-## Security notes
-
-- The password is stored in plain text in `config.ini` and in Windows Credential Manager (`TERMSRV/localhost`). This is intended for a **local, single-user machine** — xrdp inside WSL2's NAT is not reachable from the network.
-- `config.ini` is git-ignored; only `config.example.ini` is committed.
-- `trust-cert.ps1` only ever touches your **current-user** certificate stores and is fully reversible.
+`make-icon.ps1` regenerates the app icon.
 
 ## FAQ
 
-**How do I run a full Ubuntu desktop from Windows?**
-Install `xfce4` + `xrdp` inside WSL2 (Step 1), then double-click `UbuntuDesktop.exe`. It opens the Ubuntu desktop fullscreen with no login screen.
+**How do I run a full Ubuntu desktop from Windows?** Install `wsl --install -d Ubuntu`, then run UbuntuDesktop.exe and click "Install / Repair Ubuntu desktop." No terminal needed.
 
-**How do I skip the WSL / xrdp login screen?**
-The launcher stores your credential and passes it in the `.rdp` profile, so xrdp logs you in automatically — the login box never appears.
+**Do I have to set up xrdp myself?** No — the app installs and configures XFCE + xrdp for you.
 
-**Why is my WSL desktop not fullscreen / showing scrollbars?**
-The launcher opens the session at your monitor's native resolution with smart-sizing on, so it fills the screen and scales like an image with no scrollbars.
+**How do I skip the WSL / xrdp login screen?** The launcher caches your credential and passes it in the `.rdp`, so xrdp logs you in automatically.
 
-**Is this different from WSLg?**
-Yes. WSLg shows individual Linux app windows; UbuntuDesktop opens the whole desktop environment (panels, dock, file manager) as one fullscreen session.
+**Why was my desktop not fullscreen / showing scrollbars before?** The launcher opens at your monitor's native resolution with smart-sizing on, so it fills the screen and scales like an image.
 
-**Does it work on Windows 10?**
-Yes — Windows 10 and 11 with WSL2.
+**Is this different from WSLg?** Yes — WSLg shows individual Linux app windows; UbuntuDesktop opens the whole desktop as one fullscreen session.
+
+**Does it work on Windows 10?** Yes — Windows 10 and 11 with WSL2.
+
+## Security notes
+
+- The password is stored in plain text in `config.ini` and in Windows Credential Manager (`TERMSRV/localhost`). Intended for a **local, single-user machine** — xrdp inside WSL2's NAT is not reachable from the network.
+- `config.ini` is git-ignored; only `config.example.ini` is committed.
+- `trust-cert.ps1` only touches your **current-user** certificate stores and is fully reversible.
 
 ## License
 
-MIT — free for personal and commercial use.
+[MIT](LICENSE) — free for personal and commercial use.
 
 ---
 
-<sub>Tags: wsl2, wsl, ubuntu, linux-desktop, xrdp, remote-desktop, rdp, xfce, windows, wslg, gui, one-click, auto-login, csharp, portable</sub>
+<sub>Tags: wsl2, wsl, ubuntu, linux-desktop, xrdp, remote-desktop, rdp, xfce, windows, wslg, gui, one-click, auto-login, installer, csharp, portable</sub>
