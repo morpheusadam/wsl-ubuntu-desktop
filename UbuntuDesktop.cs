@@ -669,6 +669,16 @@ static class Launcher
         var cfg = AppConfig.Load();
         bool applyLinux = false;
 
+        // headless repair: open the installer straight away
+        if (Array.IndexOf(args, "/install") >= 0)
+        {
+            string distro = cfg.Distro.Length > 0 ? cfg.Distro : "Ubuntu";
+            string user = cfg.User.Length > 0 ? cfg.User : Wsl.DefaultUser(distro);
+            if (user.Length == 0) user = "root";
+            using (var f = new InstallForm(distro, user, cfg.Port)) f.ShowDialog();
+            return;
+        }
+
         if (wantSettings || !cfg.IsConfigured || !Wsl.DesktopReady(cfg.Distro))
         {
             var f = new SettingsForm(cfg);

@@ -30,9 +30,11 @@ UbuntuDesktop turns all of that into **one double-click** — and it even does t
 
 ## Screenshots
 
-| Settings & one-click installer | Ubuntu desktop |
+| Settings & auto-detect | One-click installer |
 |---|---|
-| ![Settings window](docs/settings.png) | ![Ubuntu XFCE desktop](docs/desktop.png) |
+| ![Settings window](docs/settings.png) | ![Installing XFCE + xrdp](docs/install.png) |
+
+![Ubuntu XFCE desktop opened fullscreen from Windows](docs/desktop.png)
 
 ---
 
@@ -54,6 +56,14 @@ That's it. The desktop environment itself is installed by the app.
 3. Your Ubuntu desktop opens **fullscreen, already logged in.** From now on, one double-click is all it takes.
 
 > First launch shows a one-time Windows *"Unknown publisher → Connect"* prompt for the generated `.rdp` file. Click **Connect**. To remove it permanently, see below.
+
+## Command-line flags
+
+| Flag | Action |
+|---|---|
+| *(none)* | Connect to the Ubuntu desktop (opens Settings first if not configured) |
+| `/settings` | Open the Settings window |
+| `/install` | Open the installer/repair window directly (headless repair) |
 
 ## Settings
 
