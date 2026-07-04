@@ -98,7 +98,7 @@ class SettingsForm : Form
 
         cbApplyLinux = AddCheck("Also set this as the WSL/Linux password", false, ref y);
         cbSave = AddCheck("Remember password (stored in config.ini)", cfg.SavePass, ref y);
-        cbDesktop = AddCheck("Open on a new virtual desktop", cfg.NewDesktop, ref y);
+        cbDesktop = AddCheck("Open on the side virtual desktop (move one right)", cfg.NewDesktop, ref y);
         cbStartup = AddCheck("Launch at Windows startup", Launcher.IsStartupEnabled(), ref y);
 
         var ok = new Button();
@@ -191,7 +191,7 @@ static class Launcher
     const string RunValue = "UbuntuDesktop";
 
     [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
-    const byte VK_LWIN = 0x5B, VK_LCONTROL = 0xA2, VK_D = 0x44;
+    const byte VK_LWIN = 0x5B, VK_LCONTROL = 0xA2, VK_RIGHT = 0x27;
     const uint KEYEVENTF_KEYUP = 0x2;
 
     [STAThread]
@@ -318,13 +318,14 @@ static class Launcher
         // mstsc shows a verified publisher and never prompts. optional - safe to skip.
         SignRdp(rdp);
 
-        // optionally jump to a fresh virtual desktop (Win+Ctrl+D) so Ubuntu gets its own space
+        // optionally move ONE virtual desktop to the side (Win+Ctrl+Right) so Ubuntu
+        // opens on the adjacent desktop instead of creating a new one each time
         if (cfg.NewDesktop)
         {
             keybd_event(VK_LWIN, 0, 0, UIntPtr.Zero);
             keybd_event(VK_LCONTROL, 0, 0, UIntPtr.Zero);
-            keybd_event(VK_D, 0, 0, UIntPtr.Zero);
-            keybd_event(VK_D, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            keybd_event(VK_RIGHT, 0, 0, UIntPtr.Zero);
+            keybd_event(VK_RIGHT, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
             keybd_event(VK_LCONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
             keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
             Thread.Sleep(700);
